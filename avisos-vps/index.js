@@ -1,5 +1,6 @@
 require('dotenv').config();
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+const pino = require('pino');
 const cron = require('node-cron');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -59,13 +60,24 @@ async function runJob() {
 
 async function start() {
   const { state, saveCreds } = await useMultiFileAuthState('auth');
-  sock = makeWASocket({ auth: state, printQRInTerminal: false, browser: ['CLRzDesk Avisos', 'Chrome', '1.0'] });
+  let version;
+  try { ({ version } = await fetchLatestBaileysVersion()); } catch (e) {}
+  sock = makeWASocket({
+    ...(version ? { version } : {}),
+    logger: pino({ level: 'silent' }),
+    auth: state,
+    printQRInTerminal: false,
+    browser: ['Ubuntu', 'Chrome', '20.0.04'],
+    connectTimeoutMs: 60000,
+    keepAliveIntervalMs: 10000,
+  });
   sock.ev.on('creds.update', saveCreds);
 
   if (!sock.authState.creds.registered && NUMBER) {
     setTimeout(async () => {
       try {
-        const code = await sock.requestPairingCode(NUMBER);
+        let code = await sock.requestPairingCode(NUMBER);
+        code = (code && code.match(/.{1,4}/g) ? code.match(/.{1,4}/g).join('-') : code);
         console.log('\n==============================');
         console.log('👉 CÓDIGO DE VINCULACIÓN:', code);
         console.log('WhatsApp → Dispositivos vinculados → Vincular con número de teléfono');
