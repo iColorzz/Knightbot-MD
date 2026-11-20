@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 
 async function goodbyeCommand(sock, chatId, message, match) {
     if (!chatId.endsWith('@g.us')) {
-        await sock.sendMessage(chatId, { text: 'This command can only be used in groups.' });
+        await sock.sendMessage(chatId, { text: 'Este comando solo funciona en grupos.' });
         return;
     }
 
@@ -57,7 +57,7 @@ async function handleLeaveEvent(sock, id, participants) {
                     .replace(/{user}/g, mentionTag)
                     .replace(/{group}/g, groupName);
             } else {
-                finalMessage = ` *${mentionTag}* we will never miss you! `;
+                finalMessage = ` *${mentionTag}* ¡hasta la próxima! 👋`;
             }
 
             try {
@@ -103,7 +103,7 @@ async function handleLeaveEvent(sock, id, participants) {
                     .replace(/{user}/g, `@${displayName}`)
                     .replace(/{group}/g, groupName);
             } else {
-                fallbackMessage = `Goodbye @${displayName}! 👋`;
+                fallbackMessage = `¡Adiós @${displayName}! 👋`;
             }
 
             await sock.sendMessage(id, {
