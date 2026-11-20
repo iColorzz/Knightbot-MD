@@ -32,7 +32,7 @@ const hashOf = (cid, keys) => crypto.createHash('sha1').update(cid + '|' + keys.
 const sleep  = ms => new Promise(r => setTimeout(r, ms));
 const rnd    = (a, b) => Math.floor(a + Math.random() * (b - a));
 
-let sock, ready = false, running = false, task = null, ownerJid = null;
+let sock, ready = false, running = false, polling = false, task = null, ownerJid = null;
 
 // En México hay cuentas registradas como 52+10 dígitos y otras como 521+10: se pregunta a WhatsApp cuál existe
 async function resolveJid(phone) {
@@ -88,6 +88,37 @@ async function runJob(manual, filtro) {
   return res;
 }
 
+// Reportes y reposiciones: el gestor deja mensajes en una fila y aquí se recogen cada minuto
+async function pollQueue() {
+  if (!ready || polling || TEST) return;
+  polling = true;
+  try {
+    const r = await fetch(`${GESTOR}/api/wa-queue?key=${encodeURIComponent(WA_KEY)}`);
+    const d = await r.json().catch(() => ({}));
+    if (!d.ok) { if (r.status !== 400) console.log('[fila] gestor respondió:', d.error || r.status); return; }
+    const done = [];
+    for (const it of d.items || []) {
+      let jid = null;
+      if (it.dest === 'owner') {
+        if (!OWNER) { done.push(it.id); continue; }                  // sin dueño configurado: se descarta
+        jid = ownerJid || (ownerJid = await resolveJid(OWNER));
+        if (!jid) continue;                                          // se reintenta en la siguiente vuelta
+      } else {
+        jid = await resolveJid(it.dest);
+        if (!jid) { console.log('[fila] sin WhatsApp:', it.dest); done.push(it.id); continue; }
+      }
+      try {
+        await sock.sendMessage(jid, { text: it.text });
+        done.push(it.id);
+        console.log(`[fila] ✓ ${it.dest === 'owner' ? 'aviso para ti' : 'mensaje a ' + it.dest}`);
+      } catch (e) { console.log('[fila] ✗', e.message); }
+      await sleep(rnd(4, 9) * 1000);
+    }
+    if (done.length) await fetch(`${GESTOR}/api/wa-queue/ack?key=${encodeURIComponent(WA_KEY)}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ids: done }) });
+  } catch (e) { console.log('[fila] error:', e.message); }
+  finally { polling = false; }
+}
+
 const resumen = r => r.error ? `⚠️ No se pudo: ${r.error}`
   : r.paused ? '⏸️ Está en pausa.'
   : `✅ Envío terminado\n• Enviados: ${r.n}\n• Ya avisados antes: ${r.ya}${r.sinWa.length ? `\n• Sin WhatsApp: ${r.sinWa.join(', ')}` : ''}${r.fallos.length ? `\n• Fallaron: ${r.fallos.join(', ')}` : ''}`;
@@ -129,7 +160,7 @@ async function onCommand(from, text) {
     case '.ayuda': case '.menu': case '.help':
       return say(from, AYUDA);
     case '.estado':
-      return say(from, `📊 *Estado*\n• WhatsApp: ${ready ? 'conectado ✅' : 'desconectado ❌'}\n• Envío automático: ${state.paused ? 'en pausa ⏸️' : 'activo ▶️'}\n• Hora diaria: ${cronLabel(currentCron())} (hora de México)\n• Avisos recordados: ${Object.keys(sent).length}\n• Reenvío de respuestas: ${FORWARD ? 'sí' : 'no'}`);
+      return say(from, `📊 *Estado*\n• WhatsApp: ${ready ? 'conectado ✅' : 'desconectado ❌'}\n• Envío automático: ${state.paused ? 'en pausa ⏸️' : 'activo ▶️'}\n• Hora diaria: ${cronLabel(currentCron())} (hora de México)\n• Avisos recordados: ${Object.keys(sent).length}\n• Reenvío de respuestas: ${FORWARD ? 'sí' : 'no'}\n• Reportes y reposiciones: ${OWNER ? 'activos' : 'falta OWNER en .env'}`);
     case '.pausa':
       state.paused = true; saveState();
       return say(from, '⏸️ Envío automático en pausa. Usa .reanudar para prenderlo.');
@@ -256,5 +287,6 @@ if (!GESTOR || !WA_KEY) { console.log('Falta configurar GESTOR_URL y WA_KEY en e
 start();
 if (!TEST) {
   schedule();
+  setInterval(pollQueue, 60 * 1000);
   console.log(`[avisos] iniciado. Envío diario a las ${cronLabel(currentCron())} (hora de México)${state.paused ? ' — EN PAUSA' : ''}.`);
 } else console.log('[prueba] conectando para mandar un mensaje de prueba a', TEST);

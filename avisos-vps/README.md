@@ -40,6 +40,12 @@ pm2 start index.js --name avisos-wa
 pm2 save
 ```
 
+## Reportes y reposiciones (automático)
+- Cuando un cliente reporta una cuenta en su portal, te llega el aviso a tu número principal.
+- Cuando resuelves el reporte en el panel, al cliente le llega por WhatsApp que ya quedó,
+  con su cuenta nueva (sin contraseña) y el enlace de soporte donde ve los datos completos.
+- El VPS revisa la fila de mensajes cada minuto. Necesita `OWNER` en el .env.
+
 ## Comandos (desde tu número principal, por mensaje al chip)
 - `.ayuda` — lista de comandos
 - `.lista` — a quién le toca aviso (no manda nada)
