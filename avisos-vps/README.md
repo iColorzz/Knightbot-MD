@@ -40,6 +40,17 @@ pm2 start index.js --name avisos-wa
 pm2 save
 ```
 
+## Comandos (desde tu número principal, por mensaje al chip)
+- `.ayuda` — lista de comandos
+- `.lista` — a quién le toca aviso (no manda nada)
+- `.enviar` — manda ahorita los avisos pendientes
+- `.estado` — conexión, hora y pausa
+- `.pausa` / `.reanudar` — apaga o prende el envío automático
+- `.hora 10:30` — cambia la hora del envío diario
+
+Si un cliente contesta el aviso, su respuesta te llega reenviada a tu número principal.
+Si los comandos no te responden, manda una vez `.soy CLAVE` (la `CMD_PIN` del .env).
+
 ## Ajustes (.env)
 - `SEND_CRON` — hora del envío (cron, hora de México). `0 10 * * *` = 10 am.
 - `MIN_DELAY` / `MAX_DELAY` — segundos de pausa entre mensajes.
