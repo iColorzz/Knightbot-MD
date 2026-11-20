@@ -1,16 +1,16 @@
 require('dotenv').config();
 
 const settings = {
-  packname: 'Knight Bot',
-  author: '‎',
-  botName: "Knight Bot",
-  botOwner: 'Professor', // Your name
-  ownerNumber: '919876543210', //Set your number here without + symbol, just add country code & number without any space
+  packname: 'CLRBOT',
+  author: 'CLRStreaming',
+  botName: "CLRBOT",
+  botOwner: 'CLRStreaming', // Your name
+  ownerNumber: '5215524043577', //Set your number here without + symbol, just add country code & number without any space
   giphyApiKey: 'qnl7ssQChTdPjsKta2Ax2LMaGXz303tq',
   commandMode: "public",
   maxStoreMessages: 20, 
   storeWriteInterval: 10000,
-  description: "This is a bot for managing group commands and automating tasks.",
+  description: "Bot oficial de CLRStreaming — moderación de grupos y automatización. clrcolorz.shop",
   version: "3.0.8",
   updateZipUrl: "https://github.com/mruniquehacker/Knightbot-MD/archive/refs/heads/main.zip",
   // Media / Knight API (song, video, cards, etc.)
