@@ -22,6 +22,29 @@ const rnd    = (a, b) => Math.floor(a + Math.random() * (b - a));
 
 let sock, ready = false, running = false;
 
+// En México hay cuentas registradas como 52+10 dígitos y otras como 521+10: se pregunta a WhatsApp cuál existe
+async function resolveJid(phone) {
+  const cands = [phone];
+  if (/^52\d{10}$/.test(phone)) cands.push('521' + phone.slice(2));
+  if (/^521\d{10}$/.test(phone)) cands.push('52' + phone.slice(3));
+  for (const c of cands) {
+    try { const r = await sock.onWhatsApp(c + '@s.whatsapp.net'); if (r && r[0] && r[0].exists) return r[0].jid; } catch (e) {}
+  }
+  return null;
+}
+
+// Modo prueba: node index.js --test 5512345678  → manda un mensaje a ese número y se cierra
+const TI = process.argv.indexOf('--test');
+let TEST = TI > -1 ? String(process.argv[TI + 1] || '').replace(/\D/g, '') : '';
+if (TEST.length === 10) TEST = '52' + TEST;
+async function sendTest() {
+  const jid = await resolveJid(TEST);
+  if (!jid) { console.log('[prueba] ese número no tiene WhatsApp:', TEST); process.exit(1); }
+  await sock.sendMessage(jid, { text: '✅ Prueba de CLRzDesk Avisos: el VPS ya puede mandar recordatorios por WhatsApp.' });
+  console.log('[prueba] ✓ mensaje enviado a', jid);
+  setTimeout(() => process.exit(0), 3000);
+}
+
 async function runJob() {
   if (!ready) { console.log('[avisos] aún no conectado, se omite esta corrida'); return; }
   if (running) return;
@@ -37,7 +60,8 @@ async function runJob() {
       const h = hashOf(it.cid, it.keys || []);
       if (sent[h]) continue;                 // ya se le avisó de estas mismas cuentas
       if (!it.phone || it.phone.length < 10) { console.log('[avisos] sin teléfono válido:', it.name); continue; }
-      const jid = it.phone + '@s.whatsapp.net';
+      const jid = await resolveJid(it.phone);
+      if (!jid) { console.log(`[avisos] ${it.name} (${it.phone}) no tiene WhatsApp, se omite`); continue; }
       try {
         await sock.sendMessage(jid, { text: it.text });
         sent[h] = Date.now(); saveSent(); n++;
@@ -88,7 +112,7 @@ async function start() {
 
   sock.ev.on('connection.update', (u) => {
     const { connection, lastDisconnect } = u;
-    if (connection === 'open') { ready = true; console.log('[avisos] ✅ conectado a WhatsApp'); }
+    if (connection === 'open') { ready = true; console.log('[avisos] ✅ conectado a WhatsApp'); if (TEST) sendTest().catch(e => { console.log('[prueba] error:', e.message); process.exit(1); }); }
     if (connection === 'close') {
       ready = false;
       const code = lastDisconnect && lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode;
@@ -101,8 +125,10 @@ async function start() {
 if (!GESTOR || !WA_KEY) { console.log('Falta configurar GESTOR_URL y WA_KEY en el archivo .env'); process.exit(1); }
 
 start();
-cron.schedule(SEND_CRON, runJob, { timezone: 'America/Mexico_City' });
-console.log(`[avisos] iniciado. Enviará según "${SEND_CRON}" (hora de México).`);
+if (!TEST) {
+  cron.schedule(SEND_CRON, runJob, { timezone: 'America/Mexico_City' });
+  console.log(`[avisos] iniciado. Enviará según "${SEND_CRON}" (hora de México).`);
+} else console.log('[prueba] conectando para mandar un mensaje de prueba a', TEST);
 
 // Para una prueba manual inmediata: node index.js --now
 if (process.argv.includes('--now')) setTimeout(runJob, 8000);
