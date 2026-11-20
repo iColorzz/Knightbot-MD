@@ -1,0 +1,14 @@
+{
+  "name": "clrzdesk-avisos",
+  "version": "1.0.0",
+  "description": "Envía por WhatsApp los recordatorios de vencimiento de CLRzDesk desde el VPS",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "dotenv": "^16.4.5",
+    "node-cron": "^3.0.3"
+  }
+}
