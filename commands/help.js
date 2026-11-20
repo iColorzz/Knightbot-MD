@@ -5,229 +5,219 @@ const path = require('path');
 async function helpCommand(sock, chatId, message) {
     const helpMessage = `
 ╔═══════════════════╗
-   *🤖 ${settings.botName || 'KnightBot-MD'}*  
-   Version: *${settings.version || '3.0.0'}*
-   by ${settings.botOwner || 'CLRStreaming'}
+   *🤖 ${settings.botName || 'CLRBOT'}*
+   Versión: *${settings.version || '3.0.0'}*
+   por ${settings.botOwner || 'CLRStreaming'}
 ╚═══════════════════╝
 
-*Available Commands:*
+*Lista de comandos:*
 
 ╔═══════════════════╗
-🌐 *General Commands*:
-║ ➤ .help or .menu
-║ ➤ .ping
-║ ➤ .alive
-║ ➤ .tts <text>
-║ ➤ .owner
-║ ➤ .joke
-║ ➤ .quote
-║ ➤ .fact
-║ ➤ .weather <city>
-║ ➤ .news
-║ ➤ .attp <text>
-║ ➤ .lyrics <song_title>
-║ ➤ .8ball <question>
-║ ➤ .groupinfo
-║ ➤ .staff or .admins 
-║ ➤ .vv
-║ ➤ .vv2
-║ ➤ .trt <text> <lang>
-║ ➤ .ss <link>
-║ ➤ .jid
-║ ➤ .url
-╚═══════════════════╝ 
-
-╔═══════════════════╗
-👮‍♂️ *Admin Commands*:
-║ ➤ .ban @user
-║ ➤ .promote @user
-║ ➤ .demote @user
-║ ➤ .mute <minutes>
-║ ➤ .unmute
-║ ➤ .delete or .del
-║ ➤ .kick @user
-║ ➤ .warnings @user
-║ ➤ .warn @user
-║ ➤ .antilink
-║ ➤ .antibadword
-║ ➤ .clear
-║ ➤ .tag <message>
-║ ➤ .tagall
-║ ➤ .tagnotadmin
-║ ➤ .hidetag <message>
-║ ➤ .chatbot
-║ ➤ .resetlink
-║ ➤ .antitag <on/off>
-║ ➤ .welcome <on/off>
-║ ➤ .goodbye <on/off>
-║ ➤ .antibot <on/off/set/get>
-║ ➤ .setgdesc <description>
-║ ➤ .setgname <new name>
-║ ➤ .setgpp (reply to image)
-║ ➤ .groupstatus [caption/text]
+🌐 *Generales*:
+║ ➤ .help / .menu — muestra este menú
+║ ➤ .ping — mide la velocidad del bot
+║ ➤ .alive — comprueba si el bot está activo
+║ ➤ .tts <texto> — convierte texto en voz
+║ ➤ .owner — datos del dueño
+║ ➤ .joke — un chiste
+║ ➤ .quote — una frase
+║ ➤ .fact — un dato curioso
+║ ➤ .weather <ciudad> — el clima
+║ ➤ .news — noticias
+║ ➤ .attp <texto> — texto animado en sticker
+║ ➤ .lyrics <canción> — letra de una canción
+║ ➤ .8ball <pregunta> — la bola mágica responde
+║ ➤ .groupinfo — info del grupo
+║ ➤ .staff / .admins — lista de admins
+║ ➤ .vv — reenvía una foto de ver una vez
+║ ➤ .vv2 — reenvía ver una vez al privado
+║ ➤ .trt <texto> <idioma> — traduce texto
+║ ➤ .ss <link> — captura de una página web
+║ ➤ .jid — muestra el ID del chat
+║ ➤ .url — sube una imagen y da su link
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-🔒 *Owner Commands*:
-║ ➤ .mode <public/private>
-║ ➤ .clearsession
-║ ➤ .antidelete
-║ ➤ .cleartmp
-║ ➤ .update
-║ ➤ .settings
-║ ➤ .setpp <reply to image>
-║ ➤ .autoreact <on/off>
-║ ➤ .autostatus <on/off>
-║ ➤ .autostatus react <on/off>
-║ ➤ .savestatus [on/off]
-║ ➤ .autotyping <on/off>
-║ ➤ .autoread <on/off>
-║ ➤ .anticall <on/off>
-║ ➤ .pmblocker <on/off/status>
-║ ➤ .pmblocker setmsg <text>
-║ ➤ .setmention <reply to msg>
-║ ➤ .mention <on/off>
+👮‍♂️ *Administración*:
+║ ➤ .ban @usuario — veta a alguien del bot
+║ ➤ .promote @usuario — lo hace admin
+║ ➤ .demote @usuario — le quita admin
+║ ➤ .mute <minutos> — silencia el grupo
+║ ➤ .unmute — reactiva el grupo
+║ ➤ .delete / .del — borra un mensaje
+║ ➤ .kick @usuario — saca a alguien del grupo
+║ ➤ .warnings @usuario — ve sus advertencias
+║ ➤ .warn @usuario — le da una advertencia
+║ ➤ .antilink — borra links de no-admins
+║ ➤ .antibadword — borra groserías
+║ ➤ .clear — limpia el chat
+║ ➤ .tag <mensaje> — menciona a todos con texto
+║ ➤ .tagall — menciona a todos
+║ ➤ .tagnotadmin — menciona a los que no son admin
+║ ➤ .hidetag <mensaje> — menciona a todos oculto
+║ ➤ .chatbot — activa respuestas con IA
+║ ➤ .resetlink — cambia el link del grupo
+║ ➤ .antitag <on/off> — bloquea menciones masivas
+║ ➤ .welcome <on/off> — mensaje de bienvenida
+║ ➤ .goodbye <on/off> — mensaje de despedida
+║ ➤ .antibot <on/off/set/get> — bloquea otros bots
+║ ➤ .setgdesc <texto> — cambia la descripción del grupo
+║ ➤ .setgname <nombre> — cambia el nombre del grupo
+║ ➤ .setgpp (responde a imagen) — cambia la foto del grupo
+║ ➤ .groupstatus [texto] — estado del grupo
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-🎨 *Image/Sticker Commands*:
-║ ➤ .blur <image>
-║ ➤ .simage <reply to sticker>
-║ ➤ .sticker <reply to image>
-║ ➤ .removebg
-║ ➤ .remini
-║ ➤ .crop (reply sticker/image/video)
-║ ➤ .tgsticker <Link>
-║ ➤ .meme
-║ ➤ .take <packname> 
-║ ➤ .emojimix <emj1>+<emj2>
-║ ➤ .igs <insta link>
-║ ➤ .igsc <insta link>
-╚═══════════════════╝  
-
-╔═══════════════════╗
-🖼️ *Pies Commands*:
-║ ➤ .pies <country>
-║ ➤ .china 
-║ ➤ .indonesia 
-║ ➤ .japan 
-║ ➤ .korea 
-║ ➤ .hijab
+🔒 *Dueño*:
+║ ➤ .mode <public/private> — bot público o privado
+║ ➤ .clearsession — limpia la sesión
+║ ➤ .antidelete — recupera mensajes borrados
+║ ➤ .cleartmp — borra archivos temporales
+║ ➤ .update — actualiza el bot
+║ ➤ .settings — ajustes del bot
+║ ➤ .setpp (responde a imagen) — foto de perfil del bot
+║ ➤ .autoreact <on/off> — reacciona solo a mensajes
+║ ➤ .autostatus <on/off> — ve los estados solo
+║ ➤ .autostatus react <on/off> — reacciona a estados
+║ ➤ .savestatus [on/off] — guarda estados
+║ ➤ .autotyping <on/off> — simula que escribe
+║ ➤ .autoread <on/off> — marca mensajes como leídos
+║ ➤ .anticall <on/off> — rechaza llamadas
+║ ➤ .pmblocker <on/off/status> — bloquea mensajes al privado
+║ ➤ .pmblocker setmsg <texto> — mensaje del bloqueo
+║ ➤ .setmention (responde a msg) — mensaje al mencionar
+║ ➤ .mention <on/off> — respuesta al mencionar
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-🎮 *Game Commands*:
-║ ➤ .tictactoe @user
-║ ➤ .hangman
-║ ➤ .guess <letter>
-║ ➤ .trivia
-║ ➤ .answer <answer>
-║ ➤ .truth
-║ ➤ .dare
+🎨 *Imágenes y Stickers*:
+║ ➤ .blur <imagen> — difumina una imagen
+║ ➤ .simage (responde a sticker) — sticker a imagen
+║ ➤ .sticker (responde a imagen) — imagen a sticker
+║ ➤ .removebg — quita el fondo
+║ ➤ .remini — mejora la calidad
+║ ➤ .crop (responde sticker/imagen/video) — recorta
+║ ➤ .tgsticker <link> — stickers de Telegram
+║ ➤ .meme — un meme
+║ ➤ .take <nombre> — renombra un sticker
+║ ➤ .emojimix <emj1>+<emj2> — mezcla emojis
+║ ➤ .igs <link insta> — historia de Instagram
+║ ➤ .igsc <link insta> — foto de perfil de Instagram
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-🤖 *AI Commands*:
-║ ➤ .ai <question>
-║ ➤ .gpt <question>
-║ ➤ .gemini <question>
-║ ➤ .imagine <prompt>
-║ ➤ .flux <prompt>
-║ ➤ .sora <prompt>
+🎮 *Juegos*:
+║ ➤ .tictactoe @usuario — gato (tres en raya)
+║ ➤ .hangman — el ahorcado
+║ ➤ .guess <letra> — adivina la letra
+║ ➤ .trivia — preguntas de trivia
+║ ➤ .answer <respuesta> — responde la trivia
+║ ➤ .truth — verdad
+║ ➤ .dare — reto
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-🎯 *Fun Commands*:
-║ ➤ .compliment @user
-║ ➤ .insult @user
-║ ➤ .flirt 
-║ ➤ .shayari
-║ ➤ .goodnight
-║ ➤ .roseday
-║ ➤ .character @user
-║ ➤ .wasted @user
-║ ➤ .ship @user
-║ ➤ .simp @user
-║ ➤ .stupid @user [text]
+🤖 *Inteligencia Artificial*:
+║ ➤ .ai <pregunta> — pregúntale a la IA
+║ ➤ .gpt <pregunta> — ChatGPT
+║ ➤ .gemini <pregunta> — Gemini
+║ ➤ .imagine <descripción> — genera una imagen
+║ ➤ .flux <descripción> — genera imagen (Flux)
+║ ➤ .sora <descripción> — genera imagen (Sora)
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-🔤 *Textmaker*:
-║ ➤ .metallic <text>
-║ ➤ .ice <text>
-║ ➤ .snow <text>
-║ ➤ .impressive <text>
-║ ➤ .matrix <text>
-║ ➤ .light <text>
-║ ➤ .neon <text>
-║ ➤ .devil <text>
-║ ➤ .purple <text>
-║ ➤ .thunder <text>
-║ ➤ .leaves <text>
-║ ➤ .1917 <text>
-║ ➤ .arena <text>
-║ ➤ .hacker <text>
-║ ➤ .sand <text>
-║ ➤ .blackpink <text>
-║ ➤ .glitch <text>
-║ ➤ .fire <text>
+🎯 *Diversión*:
+║ ➤ .compliment @usuario — un halago
+║ ➤ .insult @usuario — un insulto (de broma)
+║ ➤ .flirt — una frase coqueta
+║ ➤ .shayari — un verso
+║ ➤ .goodnight — buenas noches
+║ ➤ .roseday — día de la rosa
+║ ➤ .character @usuario — análisis de personalidad
+║ ➤ .wasted @usuario — efecto "wasted"
+║ ➤ .ship @usuario — compatibilidad amorosa
+║ ➤ .simp @usuario — tarjeta de simp
+║ ➤ .stupid @usuario [texto] — meme "is stupid"
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-📥 *Downloader*:
-║ ➤ .play <song_name>
-║ ➤ .song <song_name>
-║ ➤ .spotify <query>
-║ ➤ .instagram <link>
-║ ➤ .facebook <link>
-║ ➤ .twitter <link>
-║ ➤ .tiktok <link>
-║ ➤ .video <song name>
-║ ➤ .ytmp4 <Link>
+🔤 *Texto con estilo*:
+║ ➤ .metallic <texto> — efecto metálico
+║ ➤ .ice <texto> — efecto hielo
+║ ➤ .snow <texto> — efecto nieve
+║ ➤ .impressive <texto> — estilo impresionante
+║ ➤ .matrix <texto> — estilo Matrix
+║ ➤ .light <texto> — estilo luz
+║ ➤ .neon <texto> — estilo neón
+║ ➤ .devil <texto> — estilo diablo
+║ ➤ .purple <texto> — estilo morado
+║ ➤ .thunder <texto> — estilo rayo
+║ ➤ .leaves <texto> — estilo hojas
+║ ➤ .1917 <texto> — estilo 1917
+║ ➤ .arena <texto> — estilo arena
+║ ➤ .hacker <texto> — estilo hacker
+║ ➤ .sand <texto> — estilo arena (desierto)
+║ ➤ .blackpink <texto> — estilo Blackpink
+║ ➤ .glitch <texto> — estilo glitch
+║ ➤ .fire <texto> — estilo fuego
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-🧩 *MISC*:
-║ ➤ .heart
-║ ➤ .horny
-║ ➤ .circle
-║ ➤ .lgbt
-║ ➤ .lolice
-║ ➤ .its-so-stupid
-║ ➤ .namecard 
-║ ➤ .oogway
-║ ➤ .tweet
-║ ➤ .ytcomment 
-║ ➤ .comrade 
-║ ➤ .gay 
-║ ➤ .glass 
-║ ➤ .jail 
-║ ➤ .passed 
-║ ➤ .triggered
+📥 *Descargas*:
+║ ➤ .play <canción> — reproduce audio
+║ ➤ .song <canción> — descarga la canción
+║ ➤ .spotify <búsqueda> — descarga de Spotify
+║ ➤ .instagram <link> — descarga de Instagram
+║ ➤ .facebook <link> — descarga de Facebook
+║ ➤ .twitter <link> — descarga de Twitter/X
+║ ➤ .tiktok <link> — descarga de TikTok
+║ ➤ .video <nombre> — descarga un video
+║ ➤ .ytmp4 <link> — video de YouTube
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-🖼️ *ANIME*:
-║ ➤ .nom 
-║ ➤ .poke 
-║ ➤ .cry 
-║ ➤ .kiss 
-║ ➤ .pat 
-║ ➤ .hug 
-║ ➤ .wink 
-║ ➤ .facepalm 
+🧩 *Varios*:
+║ ➤ .heart — marco de corazón
+║ ➤ .horny — tarjeta "horny"
+║ ➤ .circle — recorte circular
+║ ➤ .lgbt — marco LGBT
+║ ➤ .lolice — meme policía loli
+║ ➤ .its-so-stupid — meme "so stupid"
+║ ➤ .namecard — tarjeta de nombre
+║ ➤ .oogway — frase de Oogway
+║ ➤ .tweet — genera un tweet falso
+║ ➤ .ytcomment — comentario de YouTube falso
+║ ➤ .comrade — efecto camarada
+║ ➤ .gay — marco gay
+║ ➤ .glass — efecto vidrio
+║ ➤ .jail — tras las rejas
+║ ➤ .passed — efecto "passed"
+║ ➤ .triggered — efecto triggered
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-💻 *Github Commands:*
-║ ➤ .git
-║ ➤ .github
-║ ➤ .sc
-║ ➤ .script
-║ ➤ .repo
+🖼️ *Anime*:
+║ ➤ .nom — morder
+║ ➤ .poke — picar
+║ ➤ .cry — llorar
+║ ➤ .kiss — beso
+║ ➤ .pat — caricia
+║ ➤ .hug — abrazo
+║ ➤ .wink — guiño
+║ ➤ .facepalm — facepalm
 ╚═══════════════════╝
 
-Join our channel for updates:`;
+╔═══════════════════╗
+💻 *GitHub*:
+║ ➤ .git — info del repositorio
+║ ➤ .github — info del repositorio
+║ ➤ .sc — código fuente
+║ ➤ .script — código fuente
+║ ➤ .repo — repositorio
+╚═══════════════════╝
+
+CLRStreaming · clrcolorz.shop`;
 
     try {
         const imagePath = path.join(__dirname, '../assets/bot_image.jpg');
