@@ -27,6 +27,7 @@ const cronFromTime = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); retur
 const currentCron = () => cronFromTime(state.time) || process.env.SEND_CRON || '0 10 * * *';
 const cronLabel = c => { const p = c.split(' '); return /^\d+$/.test(p[0]) && /^\d+$/.test(p[1]) ? `${p[1].padStart(2, '0')}:${p[0].padStart(2, '0')}` : c; };
 
+const fold = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 const hashOf = (cid, keys) => crypto.createHash('sha1').update(cid + '|' + keys.join('~')).digest('hex');
 const sleep  = ms => new Promise(r => setTimeout(r, ms));
 const rnd    = (a, b) => Math.floor(a + Math.random() * (b - a));
@@ -54,15 +55,17 @@ async function getOutbox() {
 }
 
 // Manda los avisos pendientes. Devuelve un resumen.
-async function runJob(manual) {
+async function runJob(manual, filtro) {
   if (!ready) return { error: 'aún no conectado' };
   if (!manual && state.paused) { console.log('[avisos] en pausa, no se envía'); return { paused: true }; }
   if (running) return { error: 'ya hay un envío en curso' };
   running = true;
   const res = { n: 0, ya: 0, sinWa: [], fallos: [], total: 0 };
   try {
-    const items = await getOutbox();
+    let items = await getOutbox();
+    if (filtro) items = items.filter(it => fold(it.name).includes(fold(filtro)));
     res.total = items.length;
+    if (filtro && !items.length) res.error = `nadie con cuentas por vencer se llama "${filtro}"`;
     console.log(`[avisos] ${items.length} cliente(s) en la lista`);
     for (const it of items) {
       const h = hashOf(it.cid, it.keys || []);
@@ -112,6 +115,7 @@ const AYUDA = `🤖 *Comandos de CLRzDesk Avisos*
 
 .lista — a quién le toca aviso (no manda nada)
 .enviar — manda ahorita los avisos pendientes
+.enviar nombre — manda solo al cliente con ese nombre
 .estado — conexión, hora y pausa
 .pausa — apaga el envío automático
 .reanudar — vuelve a prenderlo
@@ -149,8 +153,8 @@ async function onCommand(from, text) {
     }
     case '.enviar': {
       if (running) return say(from, '⏳ Ya hay un envío en curso.');
-      await say(from, '📤 Enviando avisos pendientes… (con pausas entre cada uno)');
-      return say(from, resumen(await runJob(true)));
+      await say(from, arg ? `📤 Enviando aviso a "${arg}"…` : '📤 Enviando avisos pendientes… (con pausas entre cada uno)');
+      return say(from, resumen(await runJob(true, arg)));
     }
     default:
       return say(from, 'No conozco ese comando. Escribe .ayuda');
