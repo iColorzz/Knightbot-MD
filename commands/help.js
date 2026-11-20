@@ -7,8 +7,7 @@ async function helpCommand(sock, chatId, message) {
 ╔═══════════════════╗
    *🤖 ${settings.botName || 'KnightBot-MD'}*  
    Version: *${settings.version || '3.0.0'}*
-   by ${settings.botOwner || 'Mr Unique Hacker'}
-   YT : ${global.ytch}
+   by ${settings.botOwner || 'CLRStreaming'}
 ╚═══════════════════╝
 
 *Available Commands:*
